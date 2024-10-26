@@ -1,0 +1,62 @@
+import tkinter as tk
+from tkinter import filedialog, messagebox
+import markdown
+
+class MarkdownApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Markdown Note-Taking App")
+
+        # Creating frames for text and preview
+        self.text_frame = tk.Frame(root)
+        self.text_frame.pack(side=tk.LEFT, padx=10, pady=10)
+
+        self.preview_frame = tk.Frame(root)
+        self.preview_frame.pack(side=tk.RIGHT, padx=10, pady=10)
+
+        # Text editor for Markdown input
+        self.text_editor = tk.Text(self.text_frame, width=50, height=25)
+        self.text_editor.pack()
+
+        # Button to save note
+        self.save_button = tk.Button(self.text_frame, text="Save Note", command=self.save_note)
+        self.save_button.pack(pady=5)
+
+        # Button to preview Markdown as HTML
+        self.preview_button = tk.Button(self.text_frame, text="Preview Markdown", command=self.preview_markdown)
+        self.preview_button.pack(pady=5)
+
+        # Preview area for HTML output
+        self.preview_label = tk.Label(self.preview_frame, text="HTML Preview", font=("Arial", 14))
+        self.preview_label.pack()
+        
+        self.preview_text = tk.Text(self.preview_frame, width=50, height=25, state='disabled', wrap='word')
+        self.preview_text.pack()
+
+    # Method to save the note
+    def save_note(self):
+        content = self.text_editor.get("1.0", tk.END)
+        if content.strip():
+            file_path = filedialog.asksaveasfilename(defaultextension=".md", filetypes=[("Markdown files", "*.md")])
+            if file_path:
+                with open(file_path, "w") as file:
+                    file.write(content)
+                messagebox.showinfo("Success", "Note saved successfully!")
+        else:
+            messagebox.showwarning("Warning", "The note is empty. Write something before saving.")
+
+    # Method to preview Markdown
+    def preview_markdown(self):
+        content = self.text_editor.get("1.0", tk.END)
+        html_content = markdown.markdown(content)
+        
+        # Enable text widget to insert preview, then disable it
+        self.preview_text.config(state='normal')
+        self.preview_text.delete("1.0", tk.END)
+        self.preview_text.insert(tk.END, html_content)
+        self.preview_text.config(state='disabled')
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = MarkdownApp(root)
+    root.mainloop()
